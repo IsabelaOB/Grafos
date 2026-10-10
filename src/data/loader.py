@@ -16,28 +16,54 @@ class DataLoader:
             np.random.seed(42)
             n_nodes = 1000
             
-            # Crear nodos (Cuentas/Usuarios con atributos tabulares)
-            node_ids = [f"node_{i}" for i in range(n_nodes)]
+            # 1. Crear nodos (Cuentas/Usuarios)
+            node_ids = np.array([f"node_{i}" for i in range(n_nodes)])
+            targets = np.random.choice([0, 1], size=n_nodes, p=[0.93, 0.07]) # 7% fraude
+            
             df_nodes = pd.DataFrame({
                 'node_id': node_ids,
                 'antiguedad_meses': np.random.randint(1, 60, size=n_nodes),
                 'ingreso_promedio': np.random.exponential(1500, size=n_nodes) + 500,
-                'target': np.random.choice([0, 1], size=n_nodes, p=[0.93, 0.07]) # 7% fraude
+                'target': targets
             })
             
+            # Separar nodos para crear topología realista
+            fraud_nodes = df_nodes[df_nodes['target'] == 1]['node_id'].values
+            normal_nodes = df_nodes[df_nodes['target'] == 0]['node_id'].values
+            
             edges = []
-            for _ in range(3500):
+            
+            # 2. Transacciones normales (Ruido de fondo)
+            for _ in range(2500):
                 u = np.random.choice(node_ids)
                 v = np.random.choice(node_ids)
                 if u != v:
                     monto = np.random.exponential(300)
                     edges.append({'source': u, 'target': v, 'monto': monto})
+                    
+            # 3. INYECTAR RED CRIMINAL Y RUIDO CRUZADO (Para un ROC-AUC más realista)
+            
+            # A. Conexiones exclusivas entre estafadores (Homofilia)
+            for _ in range(150):
+                u = np.random.choice(fraud_nodes)
+                v = np.random.choice(fraud_nodes)
+                if u != v:
+                    monto = np.random.exponential(5000)
+                    edges.append({'source': u, 'target': v, 'monto': monto})
+                    
+            # B. Conexiones de estafadores a cuentas normales (Para confundir al modelo)
+            for _ in range(200):
+                u = np.random.choice(fraud_nodes)
+                v = np.random.choice(normal_nodes)
+                monto = np.random.exponential(1000)
+                edges.append({'source': u, 'target': v, 'monto': monto})
             
             df_edges = pd.DataFrame(edges)
             
+            # Guardar en CSV
             df_nodes.to_csv(self.nodes_path, index=False)
             df_edges.to_csv(self.edges_path, index=False)
-            print("[OK] Archivos 'raw_nodes.csv' y 'raw_edges.csv' generados con éxito en la carpeta /data.")
+            print("[OK] Archivos generados con topología de red criminal inyectada y ruido cruzado.")
         
         df_nodes = pd.read_csv(self.nodes_path)
         df_edges = pd.read_csv(self.edges_path)

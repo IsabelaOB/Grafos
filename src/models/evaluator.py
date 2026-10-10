@@ -5,7 +5,7 @@ from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from sklearn.metrics import roc_auc_score, precision_recall_curve, classification_report
 
 class ModelEvaluator:
-    """Capa de negocio encargada de la validación cruzada estricta y la comparación de modelos."""
+    """Capa de negocio encargada de la validación cruzada estricta y la comparación de modelo StratifiedKFolds."""
     def __init__(self, n_splits: int = 5, random_state: int = 42):
         self.n_splits = n_splits
         self.random_state = random_state
@@ -34,10 +34,10 @@ class ModelEvaluator:
         auc_graph = roc_auc_score(y, probs_graph)
 
         print("\n" + "="*50)
-        print("📊 RESULTADOS COMPARATIVOS (EXPERIMENTO DE MAESTRÍA)")
+        print(" RESULTADOS COMPARATIVOS")
         print("="*50)
         print(f" 🔹 ROC-AUC Modelo Tradicional (Solo Tabular): {auc_tab:.4f}")
-        print(f" 🚀 ROC-AUC Modelo Graph ML (Tabular + Red):   {auc_graph:.4f}")
+        print(f"  ROC-AUC Modelo Graph ML (Tabular + Red):   {auc_graph:.4f}")
         print("="*50)
 
         # Threshold Tuning avanzado para el modelo de Graph ML

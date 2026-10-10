@@ -1,5 +1,6 @@
 # Enterprise Graph Machine Learning Pipeline: Financial Fraud Detection
-
+Sebastian giraldo
+Isabela Osorio
 ##  Arquitectura del Proyecto (Software Design Patterns)
 Siguiendo principios de ingeniería de software y separación de responsabilidades (Clean Architecture), el proyecto está estructurado por capas desacopladas:
 
